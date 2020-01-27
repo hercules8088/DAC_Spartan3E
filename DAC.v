@@ -43,6 +43,7 @@ parameter S_idle = 1'b0,
 reg state = S_idle;
 reg [31:0] count;
 reg T_0,T_1;
+reg [11:0] volt_counter = 12'b0;
 
 always@(posedge clock)
 begin
@@ -51,7 +52,10 @@ case(state)
 					T_0 <= 1'b1;
 					T_1 <= 1'b0;
 					if(start == 1'b1)
-						state <= S_active;
+						begin
+							state <= S_active;
+							volt_counter <= volt_counter + 1;
+						end
 				end
 	S_active: begin
 					T_0 <= 1'b0;
@@ -78,7 +82,11 @@ else if(T_1 == 1'b1)
 		case(count)
 			32'd8: MOSI<=1'b0;
 			32'd9: MOSI<=1'b0;
-			32'd16: MOSI <= ~half;
+			32'd16: MOSI <= volt_counter[11];
+			32'd17: MOSI <= volt_counter[10];
+			32'd18: MOSI <= volt_counter[9];
+			32'd19: MOSI <= volt_counter[8];
+//			32'd16: MOSI <= ~half;
 			default: MOSI<=1'b1;		
 		endcase
 	end
